@@ -5,9 +5,12 @@ use strict;
 
 # yesterday.pl
 # return yesterday's date in ISO 8601 Date format (YYYY-MM-DD)
-# we're doing this by subtracting one day's worth of seconds from the current time
-# this is a little risky around daylight savings time changes
-# but it should work 99.9% of the time
+# http://en.wikipedia.org/wiki/ISO_8601
+#
+# to avoid issues around daylight savings time changes,
+# we get the current time (seconds since the epoch),
+# figure out what it would have been at noon today,
+# then subtract a day's worth of seconds and figure out that date
 
 print ISO_date_format( yesterday() ) . "\n";
 
@@ -18,5 +21,9 @@ sub ISO_date_format {
 }
 
 sub yesterday {
-	return( localtime( time() - ( 24 * 60 * 60 ) ) );
+	my $curr_time = time();		# time() returns the number of seconds since the epoch
+	my $curr_dt = localtime( $curr_time );		# convert into a more usable form
+	my $noon_delta = 12 - $curr_dt->hour();		# get the number of hours until noon
+	my $yesterday_time = $curr_time + ( $noon_delta * 3600 ) - 86400;	# get time for yesterday noon
+	return( localtime( $yesterday_time ) );		# format into YYYY-MM-DD
 }
