@@ -16,7 +16,7 @@ print ISO_date_format( yesterday() ) . "\n";
 
 sub ISO_date_format {
 	my $tm = shift @_;
-	my ( $day, $month, $year ) = ( $tm->mday, sprintf( '%02d', ( $tm->mon + 1 ) ), sprintf( '%02d', ( $tm->year + 1900 ) ) );
+	my ( $day, $month, $year ) = ( sprintf( '%02d', $tm->mday ), sprintf( '%02d', ( $tm->mon + 1 ) ), sprintf( '%02d', ( $tm->year + 1900 ) ) );
 	return "$year-$month-$day";
 }
 
