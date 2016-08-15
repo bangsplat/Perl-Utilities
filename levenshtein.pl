@@ -15,8 +15,15 @@ use List::Util qw( min );
 # this is effectively an inverse of similarity, useful for "fuzzy" text matches
 # 
 # Created 2016-08-12
-# Modified 2016-08-12
+# Modified 2016-08-15
+# Version 1.0.1
+#
+# revision history
+# 
 # Version 1.0
+# 	first working version
+# Version 1.0.1
+# 	converting from using hash for matrix to a an array
 
 ## make this useful from the command line
 ## require two parameters
@@ -43,10 +50,7 @@ print "The Levenshtein Distance between $s1 and $s2 is: " . levenshtein($s1, $s2
 sub levenshtein
 {
 	my $cost;	# "substitution cost" for character comparisons
-	my %mat;	# matrix for string analysis
-	## %mat is a hash to hold the distance matrix
-	## I don't think this is really the right way to implement a matrix
-	## but it works, so leave it for now
+	my @matrix;	# matrix for calculating distance
 	
     # $s1 and $s2 are the two strings
     # $len1 and $len2 are their respective lengths
@@ -73,12 +77,12 @@ sub levenshtein
     # start by everything but the first row/column to 0
 	for ( my $i = 1; $i <= $len1; $i++ ) {
 		for ( my $j = 1; $j <= $len2; $j++ ) {
-			$mat{$i}{$j} = 0;
+			$matrix[$i][$j] = 0;
 		}
 	}
 	# now set the values of the first row and column sequentially, starting with 0
-	for ( my $i = 0; $i <= $len1; $i++ ) { $mat{$i}{0} = $i; }
-	for ( my $j = 0; $j <= $len2; $j++ ) { $mat{0}{$j} = $j; }
+	for ( my $i = 0; $i <= $len1; $i++ ) { $matrix[$i][0] = $i; }
+	for ( my $j = 0; $j <= $len2; $j++ ) { $matrix[0][$j] = $j; }
 	
 	# step through the cells of the matrix and do the comparisons
     for ( my $i = 1; $i <= $len1; ++$i ) {
@@ -92,13 +96,13 @@ sub levenshtein
             # 	the cell immediately above plus 1
             # 	the cell immediately to the left plus 1
             # 	the cell diagonally above and to the left + the cost
-            $mat{$i}{$j} = min( $mat{$i-1}{$j} + 1,
-                                $mat{$i}{$j-1} + 1,
-                                $mat{$i-1}{$j-1} + $cost );
+            $matrix[$i][$j] = min( $matrix[$i-1][$j] + 1,
+                                	$matrix[$i][$j-1] + 1,
+                                	$matrix[$i-1][$j-1] + $cost );
         }
     }
 	
 	# the values are a cumulative distance for the two strings
 	# the final value is the bottom right cell
-    return( $mat{$len1}{$len2} );
+    return( $matrix[$len1][$len2] );
 }
